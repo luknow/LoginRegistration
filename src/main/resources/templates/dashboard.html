@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset = "ISO-8859-1" />
+	<link href = "css/style.css" rel = "stylesheet"/>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<title>Aplikacja</title>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-6 offset-md-3 top-offset">
+			<div class="jumbotron">
+  				<h1 class="display-3">Witaj w aplikacji</h1>
+  				<p class="lead">Udało Ci się pomyślnie zalogować!</p>
+  				<div class="alert alert-success" role="alert" th:text="${success}" th:if="${success}"></div>   		
+   			    <hr class="my-4">
+   			    <form th:action="@{/logout}" method="post">
+   			    <button type="submit" class="btn btn-outline-success">Wyloguj</button>
+   			    </form>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

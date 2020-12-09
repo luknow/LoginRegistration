@@ -32,4 +32,9 @@ public class AppController {
 		redirectAttributes.addFlashAttribute("success", "Witaj adminie!");
 		return "redirect:/dashboard";
 	}
+	
+	@GetMapping("/denied")
+	public String denied() {
+		return "denied";
+	}
 }

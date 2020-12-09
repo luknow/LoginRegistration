@@ -2,6 +2,7 @@ package com.loginregistration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,5 +89,13 @@ public class AppControllerIntegrationTest {
 		  			.andExpect(status().isFound())
 	  				.andExpect(redirectedUrl("/dashboard"))
 	  				.andExpect(MockMvcResultMatchers.flash().attribute("success","Witaj adminie!"));
+	  }
+	  
+	  @Test
+	  @WithMockUser(roles = "USER") 
+	  public void shouldForwardToDeniedPageUserLoggedAsUser() throws Exception {
+		  this.mockMvc.perform(get("/admin"))
+		  			.andExpect(status().isForbidden())
+	  				.andExpect(forwardedUrl("/denied")); 
 	  }
 }

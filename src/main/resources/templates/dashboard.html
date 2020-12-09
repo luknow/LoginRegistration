@@ -16,6 +16,8 @@
   				<p class="lead">Udało Ci się pomyślnie zalogować!</p>
   				<div class="alert alert-success" role="alert" th:text="${success}" th:if="${success}"></div>   		
    			    <hr class="my-4">
+   			    <button type="button" onclick="location.href='/admin'" class="btn btn-outline-danger">Tylko dla administratorów</button>
+   			    <hr class="my-4">
    			    <form th:action="@{/logout}" method="post">
    			    <button type="submit" class="btn btn-outline-success">Wyloguj</button>
    			    </form>

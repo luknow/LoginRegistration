@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.loginregistration.model.Users;
 
@@ -24,5 +25,11 @@ public class AppController {
 	@GetMapping("/dashboard")
 	public String dashboard() {
 		return "dashboard";
+	}
+	
+	@GetMapping("/admin")
+	public String admin(RedirectAttributes redirectAttributes) {
+		redirectAttributes.addFlashAttribute("success", "Witaj adminie!");
+		return "redirect:/dashboard";
 	}
 }

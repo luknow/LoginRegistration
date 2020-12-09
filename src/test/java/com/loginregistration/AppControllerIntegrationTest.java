@@ -1,7 +1,9 @@
 package com.loginregistration;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,11 +14,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.loginregistration.controller.AppController;
@@ -75,5 +79,14 @@ public class AppControllerIntegrationTest {
 			.param("username", "username")
 			.param("password", ""))
 		  .andExpect(redirectedUrl("/login?error"));
+	  }
+	  
+	  @Test
+	  @WithMockUser(roles = "ADMIN") 
+	  public void shouldReturnDashboardAdminMessageUserLoggedAsAdmin() throws Exception {
+		  this.mockMvc.perform(get("/admin"))
+		  			.andExpect(status().isFound())
+	  				.andExpect(redirectedUrl("/dashboard"))
+	  				.andExpect(MockMvcResultMatchers.flash().attribute("success","Witaj adminie!"));
 	  }
 }

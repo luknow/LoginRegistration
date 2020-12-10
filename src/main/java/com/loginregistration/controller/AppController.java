@@ -37,4 +37,10 @@ public class AppController {
 	public String denied() {
 		return "denied";
 	}
+	
+	@GetMapping("/register")
+	public String register(Model model) {
+		model.addAttribute("user", new Users());
+		return "register";
+	}
 }

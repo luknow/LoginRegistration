@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset = "ISO-8859-1" />
+	<link href = "css/style.css" rel = "stylesheet"/>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<title>Rejestracja</title>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-6 offset-md-3 top-offset">
+			<form th:action="@{/signup}" th:object="${user}" method="post">
+  				<fieldset>
+    				<legend>Zarejestruj się</legend>
+    				<div class="alert alert-success" role="alert" th:text="${success}" th:if="${success}"></div>
+    				<div class="alert alert-danger" role="alert" th:text="${danger}" th:if="${danger}"></div>
+    				<div class="form-group">
+      					<label for="username">Login</label>
+     					<input type="text" class="form-control" id="username" name="username" th:field="*{username}" placeholder="Wprowadź login">
+   						<div class="alert alert-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Username Error</div>
+   					</div>
+   					<div class="form-group">
+      					<label for="password">Hasło</label>
+      					<input type="password" class="form-control" id="password" name="password" th:field="*{password}" placeholder="Wprowadź hasło">
+      					<div class="alert alert-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</div>
+    				</div>
+    				<div class="form-group">
+      					<label for="email">Email</label>
+      					<input type="email" class="form-control" id="email" name="email" placeholder="Wprowadź email">
+      					<div class="alert alert-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</div>
+    				</div>
+    				<button type="submit" class="btn btn-outline-success">Zarejestruj</button>
+    				<button type="button" onclick="location.href='/login'" class="btn btn-outline-secondary">Strona główna</button>
+  				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>
+</body>
+</html>		
+		
+		
+		
+		

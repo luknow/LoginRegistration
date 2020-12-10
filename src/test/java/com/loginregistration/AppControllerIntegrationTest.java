@@ -1,16 +1,20 @@
 package com.loginregistration;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,8 +27,10 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import com.loginregistration.controller.AppController;
+import com.loginregistration.model.Users;
+import com.loginregistration.repository.UserRepo;
+import com.loginregistration.service.UserService;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
@@ -34,6 +40,12 @@ public class AppControllerIntegrationTest {
 
 	@InjectMocks
 	private AppController appController;
+	
+	@Mock
+	private UserRepo userRepo;
+	
+	@Mock
+	private UserService userService;
 	
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -98,4 +110,82 @@ public class AppControllerIntegrationTest {
 		  			.andExpect(status().isForbidden())
 	  				.andExpect(forwardedUrl("/denied")); 
 	  }
+	  
+		@Test
+		public void shouldReturnErrorFieldUsernameEmpty() throws Exception {
+			this.mockMvc
+					.perform(post("/signup").sessionAttr(TOKEN_ATTR_NAME, csrfToken)
+							.param(csrfToken.getParameterName(), csrfToken.getToken())
+							.param("username", "")
+							.param("password", "password")
+							.param("email", "user@mail.com"))
+					.andExpect(model().attributeHasFieldErrors("user", "username"))
+					.andExpect(forwardedUrl("register"));
+		}
+		
+		@Test
+		public void shouldReturnErrorFieldPasswordEmpty() throws Exception {
+			this.mockMvc
+					.perform(post("/signup").sessionAttr(TOKEN_ATTR_NAME, csrfToken)
+							.param(csrfToken.getParameterName(), csrfToken.getToken())
+							.param("username", "username")
+							.param("password", "")
+							.param("email", "user@mail.com"))
+					.andExpect(model().attributeHasFieldErrors("user", "password"))
+					.andExpect(forwardedUrl("register"));
+		}
+		
+		@Test
+		public void shouldReturnErrorFieldEmailEmpty() throws Exception {
+			this.mockMvc
+					.perform(post("/signup").sessionAttr(TOKEN_ATTR_NAME, csrfToken)
+							.param(csrfToken.getParameterName(), csrfToken.getToken())
+							.param("username", "username")
+							.param("password", "password")
+							.param("email", ""))
+					.andExpect(model().attributeHasFieldErrors("user", "email"))
+					.andExpect(forwardedUrl("register"));
+		}
+		
+		@Test
+		public void shouldReturnErrorUsernameIsTaken() throws Exception {
+			Users user = new  Users();
+			user.setUsername("username");
+			Optional<Users> optionalUser = Optional.ofNullable(user);
+			
+			when(userRepo.findUserByUsernameIgnoreCase("username")).thenReturn(optionalUser);
+			
+			this.mockMvc
+					.perform(post("/signup").sessionAttr(TOKEN_ATTR_NAME, csrfToken)
+							.param(csrfToken.getParameterName(), csrfToken.getToken())
+							.param("username", "username")
+							.param("password", "password")
+							.param("email", "user@mail.com"))
+					.andExpect(MockMvcResultMatchers.flash().attribute("danger", "Login zajęty!"))
+					.andExpect(redirectedUrl("/register"));
+		}
+		
+		@Test
+		public void shouldReturnCorrectlyCreatedAccountInformation() throws Exception {
+			Users user = new  Users();
+			user.setUsername("username");
+			user.setPassword("password");
+			user.setEmail("user@mail.com");
+			Optional<Users> optionalUser = Optional.empty();
+					
+			when(userRepo.findUserByUsernameIgnoreCase("username")).thenReturn(optionalUser);
+			
+			when(userRepo.save(any(Users.class)))
+	        .thenAnswer(i -> i.getArguments()[0]);
+			
+			
+			this.mockMvc
+					.perform(post("/signup").sessionAttr(TOKEN_ATTR_NAME, csrfToken)
+							.param(csrfToken.getParameterName(), csrfToken.getToken())
+							.param("username", "username")
+							.param("password", "password")
+							.param("email", "user@mail.com"))
+					.andExpect(MockMvcResultMatchers.flash().attribute("success", "Konto utworzono pomyślnie!"))
+					.andExpect(redirectedUrl("/register"));
+		}
 }

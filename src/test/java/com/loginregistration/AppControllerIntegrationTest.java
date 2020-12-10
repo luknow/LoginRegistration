@@ -28,7 +28,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.loginregistration.controller.AppController;
+import com.loginregistration.model.Token;
 import com.loginregistration.model.Users;
+import com.loginregistration.repository.TokenRepo;
 import com.loginregistration.repository.UserRepo;
 import com.loginregistration.service.UserService;
 
@@ -43,6 +45,9 @@ public class AppControllerIntegrationTest {
 	
 	@Mock
 	private UserRepo userRepo;
+	
+	@Mock
+	private TokenRepo tokenRepo;
 	
 	@Mock
 	private UserService userService;
@@ -188,4 +193,48 @@ public class AppControllerIntegrationTest {
 					.andExpect(MockMvcResultMatchers.flash().attribute("success", "Konto utworzono pomyślnie! Sprawdź skrzynkę pocztową w celu aktywacji konta"))
 					.andExpect(redirectedUrl("/register"));
 		}
+		
+		@Test
+		public void shouldReturnErrorTokenDoesNotExist() throws Exception {
+			Optional<Token> optionalToken = Optional.empty();
+			
+			when(tokenRepo.findByValue("ec2e8c0c-e93c-4aec-8cfe-2c5cbd376bb8")).thenReturn(optionalToken);
+
+			this.mockMvc
+					.perform(get("/token")
+							.param("value", "ec2e8c0c-e93c-4aec-8cfe-2c5cbd376bb8"))
+					.andExpect(MockMvcResultMatchers.flash().attribute("danger", "Wystąpił problem! Upewnij się, że podajesz prawidłowy token"))
+					.andExpect(redirectedUrl("/login"));
+		}
+		
+		@Test
+		public void shouldReturnCorrectlyActivatedAccountInformation() throws Exception {
+			Users user = new Users();
+			user.setUsername("username");
+			user.setPassword("password");
+			user.setEmail("user@mail.com");
+			Token token = new Token();
+			token.setValue("ec2e8c0c-e93c-4aec-8cfe-2c5cbd376bb8");
+			token.setUser(user);
+			Optional<Token> optionalToken = Optional.ofNullable(token);
+			
+			when(tokenRepo.findByValue("ec2e8c0c-e93c-4aec-8cfe-2c5cbd376bb8")).thenReturn(optionalToken);
+
+			this.mockMvc
+					.perform(get("/token")
+						 .param("value", "ec2e8c0c-e93c-4aec-8cfe-2c5cbd376bb8"))
+						 .andExpect(MockMvcResultMatchers.flash().attribute("success", "Konto zweryfikowano pomyślnie! Możesz się teraz zalogować"))
+					     .andExpect(redirectedUrl("/login"));
+		}
+		
+		  @Test 
+		  public void shouldForwardToLoginPageUserNotLogged() throws Exception {
+		  this.mockMvc.perform(get("/admin"))
+		  				.andExpect(status().isFound())
+		  				.andExpect(redirectedUrl("http://localhost/login"));
+		  
+		  this.mockMvc.perform(get("/dashboard"))
+		  				.andExpect(status().isFound())
+		  				.andExpect(redirectedUrl("http://localhost/login")); 
+		  }
 }

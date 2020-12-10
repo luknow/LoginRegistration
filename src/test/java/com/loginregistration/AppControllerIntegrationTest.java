@@ -185,7 +185,7 @@ public class AppControllerIntegrationTest {
 							.param("username", "username")
 							.param("password", "password")
 							.param("email", "user@mail.com"))
-					.andExpect(MockMvcResultMatchers.flash().attribute("success", "Konto utworzono pomyślnie!"))
+					.andExpect(MockMvcResultMatchers.flash().attribute("success", "Konto utworzono pomyślnie! Sprawdź skrzynkę pocztową w celu aktywacji konta"))
 					.andExpect(redirectedUrl("/register"));
 		}
 }
